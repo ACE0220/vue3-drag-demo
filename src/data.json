@@ -6,7 +6,7 @@
     "blocks": [
         {
             "top":100,
-            "left":100,
+            "left":10,
             "zIndex":1,
             "key":"text"
         },
