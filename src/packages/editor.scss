@@ -83,6 +83,23 @@
 
 .editor-block-focus {
     &::after {
-        border: 3px dotted red;
+        border: 3px solid red;
     }
 }
+
+// 移动left值
+.line-x {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-left: 1px dashed red;
+}
+
+.line-y {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px dashed red;
+}
+
+// 

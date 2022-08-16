@@ -30,24 +30,24 @@ export default defineComponent({
 
         const config = inject('config')
 
-        const containerRef = ref(null); 
+        const containerRef = ref(null);
         // 1. 实现菜单拖拽
         const { dragStart, dragEnd } = useMenuDragger(containerRef, data);
 
         // 2.实现获取焦点, 选中后可能直接拖拽
-        
-        const {onBlockMouseDown, containerMouseDown, focusData} = useFocus(data, (e) => {
+
+        const { onBlockMouseDown, containerMouseDown, focusData, lastSelectBlock } = useFocus(data, (e) => {
             // 获取焦点马上拖拽
             mousedown(e);
         });
-        const { mousedown } = useBlockDragger(focusData);
+        const { mousedown, markLine } = useBlockDragger(focusData, lastSelectBlock, data);
 
-       
-        
-        
+
+
+
 
         // 3.实现拖拽多个元素的功能
-        
+
 
         return () => <div class="editor">
             <div class="editor-left">
@@ -75,15 +75,18 @@ export default defineComponent({
                         onMousedown={containerMouseDown}
                     >
                         {
-                            (data.value.blocks.map(item => (
+                            (data.value.blocks.map((item, index) => (
                                 <EditorBlock
                                     class={item.focus ? 'editor-block-focus' : ''}
                                     data={item}
-                                    onMousedown={(e) => onBlockMouseDown(e, item)}
+                                    onMousedown={(e) => onBlockMouseDown(e, item, index)}
                                 ></EditorBlock>
                             )))
                         }
+                        {markLine.x !== null && <div class="line-x" style={{ left: markLine.x + 'px' }}></div>}
+                        {markLine.y !== null && <div class="line-y" style={{ top: markLine.y + 'px' }}></div>}
                     </div>
+
                 </div>
             </div>
         </div>

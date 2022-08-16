@@ -22,6 +22,8 @@ export default defineComponent({
                 props.data.top = props.data.top - offsetHeight / 2;
                 props.data.alignCenter = false; // 让渲染后的结果才能去居中
             }
+            props.data.width = offsetWidth;
+            props.data.height = offsetHeight; 
         })
 
         return () => {
