@@ -14,8 +14,8 @@ export function useCommand(data) {
 
     const registry = (command) => {
         state.commandArray.push(command);
-        state.commands[command.name] = () => { // 命令名称对应执行函数
-            const { redo, undo } = command.execute();
+        state.commands[command.name] = (...args) => { // 命令名称对应执行函数
+            const { redo, undo } = command.execute(...args);
             redo();
             if (!command.pushQueue) { // 不需要放到队列直接跳过
                 return;
@@ -102,6 +102,27 @@ export function useCommand(data) {
             }
         }
     });
+
+    // 带有历史记录常用的模式
+    registry({
+        name: 'updateContainer', // 更新整个容器
+        pushQueue: true,
+        execute(newVal) {
+            let state = {
+                before: data.value, // 当前的值
+                after: newVal // 新值
+            }
+            return {
+                redo: () => {
+                    data.value = state.after;
+                },
+                undo: () => {
+                    data.value = state.before;
+                }
+            }
+            
+        }
+    })
 
 
     const keyboardEvent = (() => {

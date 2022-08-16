@@ -7,6 +7,7 @@ import { useMenuDragger } from "./useMenuDragger";
 import { useFocus } from "./useFocus";
 import { useBlockDragger } from "./useBlockDragger";
 import { useCommand } from "./useCommand";
+import { $dialog } from "@/components/Dialog";
 
 export default defineComponent({
     props: {
@@ -50,6 +51,23 @@ export default defineComponent({
         const buttons = [
             {label: '撤销', icon: 'icon-back', handler: () => commands.undo()},
             {label: '重做', icon: 'icon-back', handler: () => commands.redo()},
+            {label: '导出', icon: 'icon-back', handler: () => {
+                $dialog({
+                    title: '导出JSON使用',
+                    content: JSON.stringify(data.value)
+                })
+            }},
+            {label: '导入', icon: 'icon-back', handler: () => {
+                $dialog({
+                    title: '导入JSON使用',
+                    content: '',
+                    footer: true,
+                    onConfirm(text) {
+                        // data.value = JSON.parse(text); // 这样更改无法保留历史记录
+                        commands.updateContainer(JSON.parse(text));
+                    }
+                })
+            }},
         ]
 
         
