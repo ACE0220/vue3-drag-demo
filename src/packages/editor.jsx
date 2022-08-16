@@ -6,6 +6,7 @@ import EditorBlock from './editor-block'
 import { useMenuDragger } from "./useMenuDragger";
 import { useFocus } from "./useFocus";
 import { useBlockDragger } from "./useBlockDragger";
+import { useCommand } from "./useCommand";
 
 export default defineComponent({
     props: {
@@ -40,13 +41,18 @@ export default defineComponent({
             // 获取焦点马上拖拽
             mousedown(e);
         });
+        // 3.拖拽多个元素的功能
         const { mousedown, markLine } = useBlockDragger(focusData, lastSelectBlock, data);
 
 
+        const {commands} = useCommand(data); // []
+        // 菜单栏
+        const buttons = [
+            {label: '撤销', icon: 'icon-back', handler: () => commands.undo()},
+            {label: '重做', icon: 'icon-back', handler: () => commands.redo()},
+        ]
 
-
-
-        // 3.实现拖拽多个元素的功能
+        
 
 
         return () => <div class="editor">
@@ -63,7 +69,15 @@ export default defineComponent({
                     </div>
                 ))}
             </div>
-            <div class="editor-top">菜单栏</div>
+            <div class="editor-top">
+                {
+                    buttons.map((btn, index) => {
+                        return <div class='editor-top-button' onClick={btn.handler}>
+                            <span>{btn.label}</span>
+                        </div>
+                    })
+                }
+            </div>
             <div class="editor-right">属性控制栏</div>
             <div class="editor-container">
                 {/* 负责产生滚动条 */}

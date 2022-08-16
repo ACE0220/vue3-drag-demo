@@ -1,18 +1,78 @@
 import { reactive } from "vue";
+import { events } from "./event";
 
 export function useBlockDragger(focusData, lastSelectBlock, data) {
     let dragState = {
         startX : 0,
-        startY: 0
+        startY: 0,
+        dragging: false // 默认不是正在拖拽
     }
 
     let markLine = reactive({
         x: null,
-        y: null
+        y: null,
     })
 
+   
+    const mouseup = (e) => {
+        document.removeEventListener('mousemove', mousemove);
+        document.removeEventListener('mouseup', mouseup);
+        markLine.x = null;
+        markLine.y = null;
+        if(dragState.dragging === true) { // 如果只是点击就不会触发
+            events.emit('end');
+        }
+    }
+    const mousedown = (e) => {
+
+        const {width: BWidth, height: BHeight} = lastSelectBlock.value; // 拖拽最后的元素
+
+
+
+        dragState = {
+            startX: e.clientX,
+            startY: e.clientY,
+            startLeft: lastSelectBlock.value.left, // b点拖拽前的位置
+            startTop: lastSelectBlock.value.top,
+            startPos: focusData.value.focus.map(({top, left}) => ({top, left})),
+            dragging: false,
+            lines: (() => {
+                const {unfocused} = focusData.value; // 获取没选中的，以他们的位置做好辅助线
+                let lines = {x: [], y: []}; // 计算横线位置用y存放 x存放的是纵向的线
+                [...unfocused, {
+                    top: 0,
+                    left: 0,
+                    width: data.value.container.width,
+                    height: data.value.container.height
+                }].forEach((block) => {
+                    const {top: ATop, left: ALeft, width: AWidth, height: AHeight} = block;
+                    // 当次元素拖拽到和A元素top一致的时候，要显示辅助线，辅助线的位置就是ATop
+                    lines.y.push({showTop:ATop, top: ATop}); // 顶对顶
+                    lines.y.push({showTop:ATop, top: ATop - BHeight}); // 顶对底
+                    lines.y.push({showTop:ATop + AHeight / 2, top: ATop + AHeight / 2 - BHeight / 2}); // 中对中
+                    lines.y.push({showTop:ATop + AHeight, top: ATop + AHeight}); // 底对顶
+                    lines.y.push({showTop:ATop + AHeight, top: ATop + AHeight - BHeight}); // 底对底
+                    
+                    
+                    
+                    lines.x.push({showLeft: ALeft, left: ALeft}); // 左对左
+                    lines.x.push({showLeft: ALeft + AWidth, left: ALeft + AWidth}); // 右对左
+                    lines.x.push({showLeft: ALeft + AWidth / 2, left: ALeft + AWidth / 2 - BWidth / 2}); // 中对中
+                    lines.x.push({showLeft: ALeft + AWidth, left: ALeft + AWidth - BWidth}); // 右对右
+                    lines.x.push({showLeft: ALeft, left: ALeft - BWidth}); // 左对右
+                })
+                return lines;
+            })()
+        }
+        document.addEventListener('mousemove', mousemove);
+        document.addEventListener('mouseup', mouseup);
+    }
     const mousemove = (e) => {
         let {clientX : moveX, clientY: moveY} = e;
+        if(!dragState.dragging) {
+            dragState.dragging = true;
+            events.emit('start'); // 触发时间就会记住拖拽前的位置
+        }
         // 计算当前元素最新的left和top，去线里面找，找到显示线
         // 鼠标移动后 - 鼠标移动前 + left就好了
         let left = moveX - dragState.startX + dragState.startLeft;
@@ -51,55 +111,6 @@ export function useBlockDragger(focusData, lastSelectBlock, data) {
             block.top = dragState.startPos[idx].top + durY;
             block.left = dragState.startPos[idx].left + durX;
         })
-    }
-    const mouseup = (e) => {
-        document.removeEventListener('mousemove', mousemove);
-        document.removeEventListener('mouseup', mouseup);
-        markLine.x = null;
-        markLine.y = null;
-    }
-    const mousedown = (e) => {
-
-        const {width: BWidth, height: BHeight} = lastSelectBlock.value; // 拖拽最后的元素
-
-
-
-        dragState = {
-            startX: e.clientX,
-            startY: e.clientY,
-            startLeft: lastSelectBlock.value.left, // b点拖拽前的位置
-            startTop: lastSelectBlock.value.top,
-            startPos: focusData.value.focus.map(({top, left}) => ({top, left})),
-            lines: (() => {
-                const {unfocused} = focusData.value; // 获取没选中的，以他们的位置做好辅助线
-                let lines = {x: [], y: []}; // 计算横线位置用y存放 x存放的是纵向的线
-                [...unfocused, {
-                    top: 0,
-                    left: 0,
-                    width: data.value.container.width,
-                    height: data.value.container.height
-                }].forEach((block) => {
-                    const {top: ATop, left: ALeft, width: AWidth, height: AHeight} = block;
-                    // 当次元素拖拽到和A元素top一致的时候，要显示辅助线，辅助线的位置就是ATop
-                    lines.y.push({showTop:ATop, top: ATop}); // 顶对顶
-                    lines.y.push({showTop:ATop, top: ATop - BHeight}); // 顶对底
-                    lines.y.push({showTop:ATop + AHeight / 2, top: ATop + AHeight / 2 - BHeight / 2}); // 中对中
-                    lines.y.push({showTop:ATop + AHeight, top: ATop + AHeight}); // 底对顶
-                    lines.y.push({showTop:ATop + AHeight, top: ATop + AHeight - BHeight}); // 底对底
-                    
-                    
-                    
-                    lines.x.push({showLeft: ALeft, left: ALeft}); // 左对左
-                    lines.x.push({showLeft: ALeft + AWidth, left: ALeft + AWidth}); // 右对左
-                    lines.x.push({showLeft: ALeft + AWidth / 2, left: ALeft + AWidth / 2 - BWidth / 2}); // 中对中
-                    lines.x.push({showLeft: ALeft + AWidth, left: ALeft + AWidth - BWidth}); // 右对右
-                    lines.x.push({showLeft: ALeft, left: ALeft - BWidth}); // 左对右
-                })
-                return lines;
-            })()
-        }
-        document.addEventListener('mousemove', mousemove);
-        document.addEventListener('mouseup', mouseup);
     }
 
     return {
