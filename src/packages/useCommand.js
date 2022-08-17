@@ -1,8 +1,9 @@
 import deepcopy from "deepcopy";
+import { before } from "lodash";
 import { onUnmounted } from "vue";
 import { events } from "./event";
 
-export function useCommand(data) {
+export function useCommand(data, focusData) {
     // 前进后退需要指针
     const state = {
         current: -1, // 前进后退的索引值
@@ -120,7 +121,88 @@ export function useCommand(data) {
                     data.value = state.before;
                 }
             }
-            
+
+        }
+    })
+
+    // 置顶操作
+    registry({
+        name: 'placeTop',
+        pushQueue: true,
+        execute() {
+            let before = deepcopy(data.value.blocks);
+            let after = (() => { // 置顶就是在所有的block中找到最大的zIndex
+                let { focus, unfocused } = focusData.value;
+                let maxZIndex = unfocused.reduce((prev, block) => {
+                    return Math.max(prev, block.zIndex)
+                }, -Infinity);
+
+                focus.forEach(block => block.zIndex = maxZIndex + 1); // 让当前选中的比最大的+1
+                return data.value.blocks;
+            })()
+            return {
+                undo: () => {
+                    // 如果当前blocks前后一直则不会更新
+                    data.value = { ...data.value, blocks: before }
+                },
+                redo: () => {
+                    data.value = { ...data.value, blocks: after }
+                }
+            }
+        }
+    })
+
+    // 置底操作
+    registry({
+        name: 'placeBottom',
+        pushQueue: true,
+        execute() {
+            let before = deepcopy(data.value.blocks);
+            let after = (() => { // 所有的block中找到最小的zIndex
+                let { focus, unfocused } = focusData.value;
+                let minZIndex = unfocused.reduce((prev, block) => {
+                    return Math.min(prev, block.zIndex)
+                }, Infinity) - 1;
+                // 不能直接-1，因为index不能出现负值，负值导致看不到组件
+                // 这里如果是负值则让没选中的向上，自己变成0
+                if (minZIndex < 0) {
+                    const dur = Math.abs(minZIndex);
+                    minZIndex = 0;
+                    unfocused.forEach(block => block.zIndex += dur);
+                }
+                focus.forEach(block => block.zIndex = minZIndex); // 控制选中的值
+                return data.value.blocks;
+            })()
+            return {
+                undo: () => {
+                    // 如果当前blocks前后一直则不会更新
+                    data.value = { ...data.value, blocks: before }
+                },
+                redo: () => {
+                    data.value = { ...data.value, blocks: after }
+                }
+            }
+        }
+    })
+
+    // 置底操作
+    registry({
+        name: 'delete',
+        pushQueue: true,
+        execute() {
+            let state = {
+                before: deepcopy(data.value.blocks), // 当前的
+                after: focusData.value.unfocused, // 选中的都删除了，留下的都是没选中的
+            }
+            return {
+                undo: () => {
+                    // 如果当前blocks前后一直则不会更新
+                    data.value = { ...data.value, blocks: state.before }
+                },
+                redo: () => {
+                    data.value = { ...data.value, blocks: state.after }
+                }
+            }
         }
     })
 
@@ -136,7 +218,7 @@ export function useCommand(data) {
             if (ctrlKey) keyString.push('ctrl');
             keyString.push(keyCodes[keyCode]);
             keyString = keyString.join('+');
-        
+
             state.commandArray.forEach(({ keyboard, name }) => {
                 if (!keyboard) return; // 没有键盘事件
                 if (keyboard === keyString) {

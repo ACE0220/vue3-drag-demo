@@ -1,5 +1,6 @@
 import { defineComponent, computed, inject, ref } from "vue";
 import deepcopy from 'deepcopy';
+import classnames from 'classnames';
 import './editor.scss';
 
 import EditorBlock from './editor-block'
@@ -8,6 +9,7 @@ import { useFocus } from "./useFocus";
 import { useBlockDragger } from "./useBlockDragger";
 import { useCommand } from "./useCommand";
 import { $dialog } from "@/components/Dialog";
+import { topButtons } from "./top-button-config";
 
 export default defineComponent({
     props: {
@@ -15,6 +17,9 @@ export default defineComponent({
     },
     emits: ['update:modelValue'], // 要触发的时间
     setup(props, ctx) {
+
+        // 预览的时候内容不能再操作，可以点击、输入内容方便查看效果
+        const previewRef = ref(false);
 
         const data = computed({
             get() {
@@ -38,7 +43,7 @@ export default defineComponent({
 
         // 2.实现获取焦点, 选中后可能直接拖拽
 
-        const { onBlockMouseDown, containerMouseDown, focusData, lastSelectBlock } = useFocus(data, (e) => {
+        const { onBlockMouseDown, containerMouseDown, focusData, lastSelectBlock, clearBlockFocus } = useFocus(data, previewRef, (e) => {
             // 获取焦点马上拖拽
             mousedown(e);
         });
@@ -46,7 +51,7 @@ export default defineComponent({
         const { mousedown, markLine } = useBlockDragger(focusData, lastSelectBlock, data);
 
 
-        const {commands} = useCommand(data); // []
+        const {commands} = useCommand(data, focusData); // []
         // 菜单栏
         const buttons = [
             {label: '撤销', icon: 'icon-back', handler: () => commands.undo()},
@@ -68,10 +73,14 @@ export default defineComponent({
                     }
                 })
             }},
+            {label: '置顶', icon: 'icon-back', handler: () => commands.placeTop()},
+            {label: '置底', icon: 'icon-back', handler: () => commands.placeBottom()},
+            {label: '删除', icon: 'icon-back', handler: () => commands.delete()},
+            {label: () => previewRef.value ? '编辑' : '预览', icon: 'icon-back', handler: () => {
+                previewRef.value = !previewRef.value;
+                clearBlockFocus();
+            }},
         ]
-
-        
-
 
         return () => <div class="editor">
             <div class="editor-left">
@@ -91,7 +100,7 @@ export default defineComponent({
                 {
                     buttons.map((btn, index) => {
                         return <div class='editor-top-button' onClick={btn.handler}>
-                            <span>{btn.label}</span>
+                            <span>{typeof btn.label === 'function'? btn.label() : btn.label}</span>
                         </div>
                     })
                 }
@@ -109,7 +118,9 @@ export default defineComponent({
                         {
                             (data.value.blocks.map((item, index) => (
                                 <EditorBlock
-                                    class={item.focus ? 'editor-block-focus' : ''}
+                                    // class={item.focus ? 'editor-block-focus' : ''}
+                                    // class={previewRef.value ? 'editor-block-editing': ''}
+                                    class={classnames(item.focus ? 'editor-block-focus' : '', previewRef.value ? 'editor-block-preview': '')}
                                     data={item}
                                     onMousedown={(e) => onBlockMouseDown(e, item, index)}
                                 ></EditorBlock>
