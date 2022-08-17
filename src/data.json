@@ -8,13 +8,25 @@
             "top":100,
             "left":10,
             "zIndex":1,
-            "key":"text"
+            "key":"text",
+            "props": {
+                "text": "架构",
+                "color": "blue",
+                "size": "14"
+            }
         },
         {
             "top":200,
             "left":100,
             "zIndex":1,
-            "key":"button"
+            "key":"button",
+            "props": {
+                "text": "架构",
+                "color": "red",
+                "size": "small",
+                "type": "primary"
+            
+            }
         },
         {
             "top":300,

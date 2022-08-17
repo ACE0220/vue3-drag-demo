@@ -26,7 +26,7 @@ export let registerConfig = createEditorConfig();
 registerConfig.register({
     label: '文本',
     preview: () => '预览文本',
-    render: () => '渲染文本',
+    render: ({props}) => <span style={{color: props.color, fontSize: props.size}}>{props.text || '渲染文本'}</span>,
     key: 'text',
     props: {
         text: createInputProp('文本内容'),
@@ -51,7 +51,7 @@ registerConfig.register({
 registerConfig.register({
     label: '按钮',
     preview: () => <ElButton>预览按钮</ElButton>,
-    render: () => <ElButton>渲染按钮</ElButton>,
+    render: ({props}) => <ElButton type={props.type} size={props.size}>{props.text || '渲染按钮'}</ElButton>,
     key: 'button',
     props: {
         text: createInputProp('按钮内容'),

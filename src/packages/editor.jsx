@@ -102,28 +102,30 @@ export default defineComponent({
             e.preventDefault();
             $dropdown({
                 el: e.target, // 以哪个元素为准产生一个dropdown
-                content: () => { return<>
-                    <DropdownItem label="删除" onClick={() => commands.delete()}></DropdownItem>
-                    <DropdownItem label="置顶" onClick={() => commands.placeTop()}></DropdownItem>
-                    <DropdownItem label="置底" onClick={() => commands.placeBottom()}></DropdownItem>
-                    <DropdownItem label="查看" onClick={() => {
-                        $dialog({
-                            title: '查看节点数据',
-                            content: JSON.stringify(block)
-                        })
-                    }}></DropdownItem>
-                    <DropdownItem label="导入" onClick={() => {
-                        $dialog({
-                            title: '导入节点数据',
-                            content: '',
-                            footer: true,
-                            onConfirm(text) {
-                                text = JSON.parse(text);
-                                commands.updateBlock(text, block);
-                            }
-                        })
-                    }}></DropdownItem>
-                </>}
+                content: () => {
+                    return <>
+                        <DropdownItem label="删除" onClick={() => commands.delete()}></DropdownItem>
+                        <DropdownItem label="置顶" onClick={() => commands.placeTop()}></DropdownItem>
+                        <DropdownItem label="置底" onClick={() => commands.placeBottom()}></DropdownItem>
+                        <DropdownItem label="查看" onClick={() => {
+                            $dialog({
+                                title: '查看节点数据',
+                                content: JSON.stringify(block)
+                            })
+                        }}></DropdownItem>
+                        <DropdownItem label="导入" onClick={() => {
+                            $dialog({
+                                title: '导入节点数据',
+                                content: '',
+                                footer: true,
+                                onConfirm(text) {
+                                    text = JSON.parse(text);
+                                    commands.updateBlock(text, block);
+                                }
+                            })
+                        }}></DropdownItem>
+                    </>
+                }
             })
         }
 
@@ -165,7 +167,12 @@ export default defineComponent({
                 }
             </div>
             <div class="editor-right">
-                <EditorOperator block={lastSelectBlock.value} data={data.value}></EditorOperator>
+                <EditorOperator
+                    block={lastSelectBlock.value}
+                    data={data.value}
+                    updateContainer={commands.updateContainer}
+                    updateBlock={commands.updateBlock}
+                ></EditorOperator>
             </div>
             <div class="editor-container">
                 {/* 负责产生滚动条 */}
@@ -182,7 +189,7 @@ export default defineComponent({
                                     class={classnames(item.focus ? 'editor-block-focus' : '', previewRef.value ? 'editor-block-preview' : '')}
                                     data={item}
                                     onMousedown={(e) => onBlockMouseDown(e, item, index)}
-                                    onContextmenu = {(e) => onContextMenuBlock(e, item)}
+                                    onContextmenu={(e) => onContextMenuBlock(e, item)}
                                 ></EditorBlock>
                             )))
                         }
