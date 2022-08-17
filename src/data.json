@@ -1,7 +1,7 @@
 {
     "container": {
-        "width": "550",
-        "height": "550"
+        "width": 550,
+        "height": 550
     },
     "blocks": [
         {
@@ -32,7 +32,9 @@
             "top":300,
             "left":100,
             "zIndex":1,
-            "key":"input"
+            "key":"input",
+            "props": {},
+            "model": {}
         }
     ]
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <Editor v-model="state"></Editor>
+    <Editor v-model="state" :formData="formData"></Editor>
   </div>
 </template>
 
@@ -18,8 +18,15 @@ export default {
   setup() {
     const state = ref(data);
     provide('config', config); // 组件配置直接传
+
+    const formData = ref({
+      username: 'hhhh',
+      password: '123123123'
+    })
+
     return {
-      state
+      state,
+      formData
     }
   }
 }

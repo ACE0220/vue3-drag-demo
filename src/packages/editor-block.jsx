@@ -4,6 +4,9 @@ export default defineComponent({
     props: {
         data: {
             type: Object
+        },
+        formData: {
+            type: Object
         }
     },
     setup(props) {
@@ -16,14 +19,14 @@ export default defineComponent({
 
         const blockRef = ref(null);
         onMounted(() => {
-            let {offsetWidth, offsetHeight} = blockRef.value;
-            if(props.data.alignCenter) { // 拖拽松手的时候才渲染，其他的默认渲染不需要居中
+            let { offsetWidth, offsetHeight } = blockRef.value;
+            if (props.data.alignCenter) { // 拖拽松手的时候才渲染，其他的默认渲染不需要居中
                 props.data.left = props.data.left - offsetWidth / 2;
                 props.data.top = props.data.top - offsetHeight / 2;
                 props.data.alignCenter = false; // 让渲染后的结果才能去居中
             }
             props.data.width = offsetWidth;
-            props.data.height = offsetHeight; 
+            props.data.height = offsetHeight;
         })
 
         return () => {
@@ -31,6 +34,14 @@ export default defineComponent({
             const component = config.componentMap[props.data.key];
             const RenderComponent = component.render({
                 props: props.data.props,
+                model: Object.keys(component.model || {}).reduce((prev, modelName) => {
+                    let propName = props.data.model[modelName];
+                    prev[modelName] = {
+                        modelValue: props.formData[propName],
+                        'onUpdate:modelValue': v => props.formData[propName] = v
+                    }
+                    return prev;
+                }, {})
             });
             return <div class="editor-block" style={blockStyles.value} ref={blockRef}>
                 {RenderComponent}

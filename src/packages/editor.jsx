@@ -12,10 +12,12 @@ import { $dialog } from "@/components/Dialog";
 import { $dropdown } from "@/components/Dropdown";
 import { DropdownItem } from "@/components/DropdownItem";
 import EditorOperator from "@/components/editor-operator";
+import { ElButton } from "element-plus";
 
 export default defineComponent({
     props: {
-        modelValue: { type: Object }
+        modelValue: { type: Object },
+        formData: { type: Object }
     },
     emits: ['update:modelValue'], // 要触发的时间
     setup(props, ctx) {
@@ -138,11 +140,12 @@ export default defineComponent({
                         <EditorBlock
                             class="editor-block-preview"
                             data={item}
+                            formData={props.formData}
                         ></EditorBlock>
                     )))
                 }
             </div>
-            <div onClick={() => edittorRef.value = true}>继续编辑</div>
+            <ElButton type="primary" onClick={() => edittorRef.value = true}>继续编辑</ElButton>
         </div> : <div class="editor">
             <div class="editor-left">
                 {/* 根据注册列表渲染对应内容 可以实现h5的拖拽*/}
@@ -190,6 +193,7 @@ export default defineComponent({
                                     data={item}
                                     onMousedown={(e) => onBlockMouseDown(e, item, index)}
                                     onContextmenu={(e) => onContextMenuBlock(e, item)}
+                                    formData={props.formData}
                                 ></EditorBlock>
                             )))
                         }

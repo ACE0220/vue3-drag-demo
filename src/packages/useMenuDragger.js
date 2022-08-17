@@ -22,7 +22,8 @@ export function useMenuDragger(containerRef, data) {
                     zIndex: 1,
                     key: currentComponent.key,
                     alignCenter: true, // 希望松手的时候可以居中，也就是鼠标位置位于组件中间位置
-                    props: {}
+                    props: {},
+                    model: {}
                 }
             ]
         }
