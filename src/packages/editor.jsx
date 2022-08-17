@@ -11,6 +11,7 @@ import { useCommand } from "./useCommand";
 import { $dialog } from "@/components/Dialog";
 import { $dropdown } from "@/components/Dropdown";
 import { DropdownItem } from "@/components/DropdownItem";
+import EditorOperator from "@/components/editor-operator";
 
 export default defineComponent({
     props: {
@@ -163,7 +164,9 @@ export default defineComponent({
                     })
                 }
             </div>
-            <div class="editor-right">属性控制栏</div>
+            <div class="editor-right">
+                <EditorOperator block={lastSelectBlock.value} data={data.value}></EditorOperator>
+            </div>
             <div class="editor-container">
                 {/* 负责产生滚动条 */}
                 <div class="editor-container-canvas">
