@@ -73,10 +73,10 @@
         box-sizing: border-box;
         height: 100%;
         &-canvas {
-            background: yellow;
             overflow: scroll;
             height: 100%;
             &__content {
+                background: yellow;
                 margin: 20px auto;
                 position: relative;
             }
@@ -120,4 +120,25 @@
     left: 0;
     right: 0;
     border-top: 1px dashed red;
+}
+
+// dropdown
+.dropdown {
+    display: none;
+    position: absolute;
+    background: #fff;
+    box-shadow: 2px 2px #ccc;
+}
+
+.dropdown-isShow {
+    display: block;
+}
+
+.dropdown-item {
+    line-height: 30px;
+    width: 100px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
 }

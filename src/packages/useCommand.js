@@ -1,5 +1,4 @@
 import deepcopy from "deepcopy";
-import { before } from "lodash";
 import { onUnmounted } from "vue";
 import { events } from "./event";
 
@@ -35,6 +34,7 @@ export function useCommand(data, focusData) {
         }
     }
 
+    // 前进
     registry({
         name: 'redo',
         keyboard: 'ctrl+y',
@@ -51,6 +51,7 @@ export function useCommand(data, focusData) {
         }
     });
 
+    // 撤销
     registry({
         name: 'undo',
         keyboard: 'ctrl+z',
@@ -105,6 +106,7 @@ export function useCommand(data, focusData) {
     });
 
     // 带有历史记录常用的模式
+    // 更新整个容器
     registry({
         name: 'updateContainer', // 更新整个容器
         pushQueue: true,
@@ -119,6 +121,34 @@ export function useCommand(data, focusData) {
                 },
                 undo: () => {
                     data.value = state.before;
+                }
+            }
+
+        }
+    })
+
+    // 更新某一小的block
+    registry({
+        name: 'updateBlock',
+        pushQueue: true,
+        execute(newBlock, oldBlock) {
+            let state = {
+                before: data.value.blocks, // 当前的值
+                after: (() => {
+                    let blocks = [...data.value.blocks];
+                    const index = data.value.blocks.indexOf(oldBlock);
+                    if (index > -1) {
+                        blocks.splice(index, 1, newBlock);
+                    }
+                    return blocks;
+                })() // 新值
+            }
+            return {
+                redo: () => {
+                    data.value = { ...data.value, blocks: state.after };
+                },
+                undo: () => {
+                    data.value = { ...data.value, blocks: state.before };
                 }
             }
 
