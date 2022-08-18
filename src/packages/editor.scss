@@ -97,7 +97,7 @@
 
 .editor-block-focus {
     &::after {
-        border: 3px solid red;
+        border: 2px dashed red;
     }
 }
 
@@ -156,4 +156,50 @@
         margin: 0 4px;
         display: inline-flex;
     }
+}
+
+.block-resize {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: blue;
+    z-index: 1000;
+    user-select: none;
+    &-top {
+        top: -4px;
+        left: calc(50% - 4px);
+        &-left {
+            top: -4px;
+            left: -4px
+        }
+        &-right {
+            top: -4px;
+            right: -4px
+        }
+    }
+    &-bottom {
+        bottom: -4px;
+        left: calc(50% - 4px);
+        &-left {
+            bottom: -4px;
+            left: -4px
+        }
+        &-right {
+            bottom: -4px;
+            right: -4px
+        }
+    }
+
+    &-left {
+        left: -4px;
+        top: calc(50% - 4px)
+    }
+    &-right {
+        right: -4px;
+        top: calc(50% - 4px)
+    }
+}
+
+.el-button, .el-input {
+    transition: none;
 }

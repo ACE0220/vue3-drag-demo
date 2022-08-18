@@ -77,8 +77,12 @@ registerConfig.register({
 
 registerConfig.register({
     label: '按钮',
+    resize: {
+        width: true,
+        height: true
+    },
     preview: () => <ElButton>预览按钮</ElButton>,
-    render: ({ props }) => <ElButton type={props.type} size={props.size}>{props.text || '渲染按钮'}</ElButton>,
+    render: ({ props, size }) => <ElButton style={{width: size.width + 'px', height: size.height + 'px'}} type={props.type} size={props.size}>{props.text || '渲染按钮'}</ElButton>,
     key: 'button',
     props: {
         text: createInputProp('按钮内容'),
@@ -101,8 +105,11 @@ registerConfig.register({
 
 registerConfig.register({
     label: '输入',
+    resize: {
+        width: true,
+    },
     preview: () => <ElInput placeholder="预览输入框"></ElInput>,
-    render: ({ model }) => <ElInput placeholder="渲染输入框" {...model.default}></ElInput>,
+    render: ({ model, size }) => <ElInput style={{width: size.width + 'px', height: size.height + 'px'}} placeholder="渲染输入框" {...model.default}></ElInput>,
     key: 'input',
     model: {
         default: '绑定字段'
