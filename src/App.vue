@@ -21,7 +21,9 @@ export default {
 
     const formData = ref({
       username: 'hhhh',
-      password: '123123123'
+      password: '123123123',
+      start: 0,
+      end: 100
     })
 
     return {
